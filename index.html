@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Литературный квест — Хамелеон</title>
+<style>
+:root{--navy:#182f49;--teal:#21a6a0;--coral:#f07f6d;--gold:#f2bd55;--cream:#fff9ed;--ink:#24364a;--muted:#6d7b88;--line:#e9e2d5;--green:#27865d}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,sans-serif}
+.hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#18324b,#245a69 70%,#2a9d91);color:white;padding:34px 20px 30px}
+.hero:before,.hero:after{content:"";position:absolute;border:1px solid #ffffff25;border-radius:50%;width:270px;height:270px;right:-70px;top:-150px}
+.hero:after{width:180px;height:180px;right:110px;top:-120px}
+.hero-inner{max-width:1050px;margin:auto;position:relative;z-index:1}
+.kicker{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#b8eee5;font-weight:800}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.05;margin:12px 0}
+.hero p{max-width:680px;color:#e1edf0;line-height:1.55;margin:0}
+main{max-width:1050px;margin:24px auto 50px;padding:0 17px}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.progress-wrap{flex:1;min-width:210px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:7px}
+.track{height:9px;background:#e7e5dc;border-radius:30px;overflow:hidden}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),#7bc9a5);transition:width .35s}
+.badge{background:#fff;border:1px solid var(--line);padding:9px 13px;border-radius:30px;font-size:12px;font-weight:800;color:var(--navy)}
+.grid{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px;align-items:start}
+.sidebar,.game{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 9px 28px #263d4d0a}
+.sidebar{padding:17px}
+.side-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:800;margin:3px 8px 12px}
+.stage{width:100%;display:flex;gap:11px;align-items:center;text-align:left;background:white;border:1px solid transparent;padding:12px;border-radius:13px;color:var(--ink);margin:5px 0}
+.stage.active{background:#edf8f6;border-color:#b9e5dc}
+.stage.locked{opacity:.45;cursor:not-allowed}
+.stage .num{width:34px;height:34px;border-radius:11px;background:#f4f1e9;display:grid;place-items:center;font-weight:900;color:var(--navy);flex-shrink:0}
+.stage.active .num{background:var(--teal);color:white}
+.stage.done .num{background:#e2f3e9;color:var(--green)}
+.stage b{display:block;font-size:13px}.stage small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.game{padding:clamp(18px,3vw,30px);min-height:510px}
+.chapter{font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#d17a52}
+h2{font-size:clamp(23px,3vw,30px);margin:8px 0;color:var(--navy)}
+.intro{font-size:14px;line-height:1.65;color:var(--muted);margin:0 0 20px}
+.story-card{background:#f4f8f6;border-left:4px solid var(--teal);border-radius:12px;padding:14px 16px;margin:15px 0;color:#385363;font-size:14px;line-height:1.55}
+.question{font-weight:800;font-size:16px;line-height:1.45;margin:20px 0 12px}
+.answers{display:grid;gap:9px}
+.answer{display:flex;align-items:flex-start;gap:10px;text-align:left;width:100%;padding:13px 14px;border:1px solid #e4e8e6;border-radius:12px;background:white;color:var(--ink);font-size:14px;line-height:1.4}
+.answer:hover{border-color:var(--teal);background:#f7fcfb}
+.answer.selected{border-color:var(--teal);background:#eef9f7}
+.answer.correct{border-color:#70bd91;background:#eff9f2}
+.answer.wrong{border-color:#e8a096;background:#fff4f1}
+.dot{width:21px;height:21px;border:1.5px solid #b8c4c5;border-radius:50%;display:grid;place-items:center;font-size:11px;flex-shrink:0;font-weight:900}
+.answer.selected .dot{background:var(--teal);border-color:var(--teal);color:white}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+button{font:inherit;cursor:pointer}
+.btn{border:0;border-radius:11px;padding:12px 18px;font-size:14px;font-weight:800}
+.primary{background:var(--navy);color:white}.primary:disabled{opacity:.35;cursor:not-allowed}
+.soft{background:#f1f4f1;color:#526675}
+.feedback{min-height:24px;font-size:13px;font-weight:700;margin-top:13px;line-height:1.5}
+.feedback.good{color:var(--green)}.feedback.bad{color:#c15e4e}
+.reward{display:none;margin-top:17px;background:#fff7e4;border:1px solid #f4dfae;border-radius:13px;padding:14px 16px;color:#795b25;font-size:14px;line-height:1.5}
+.reward strong{color:#76501b}
+.finish{text-align:center;padding:25px 10px}
+.trophy{font-size:54px}.finish h2{font-size:32px}
+footer{text-align:center;color:#8b969b;font-size:12px;margin-top:20px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.sidebar{padding:12px}.stages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.stage{margin:0;padding:9px}.side-title{margin-bottom:8px}.game{min-height:0}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-inner">
+<div class="kicker">Интерактивный урок · Теория литературы</div>
+<h1>Тайна хамелеона</h1>
+<p>Литературный квест по рассказу А. П. Чехова. Пройди четыре испытания, исследуй текст и собери ключ к финальной разгадке!</p>
+</div></header>
+<main>
+<div class="topline">
+ <div class="progress-wrap"><div class="progress-label"><span>ТВОЙ ПРОГРЕСС</span><span id="progressText">0 из 4 испытаний</span></div><div class="track"><div class="fill" id="progressFill"></div></div></div>
+ <div class="badge" id="keyBadge">🗝 Ключи: 0/4</div>
+</div>
+<div class="grid">
+<aside class="sidebar">
+ <div class="side-title">Маршрут расследования</div>
+ <div class="stages" id="stages">
+  <button class="stage active" data-stage="0"><span class="num">01</span><span><b>След сатиры</b><small>Найди авторскую насмешку</small></span></button>
+  <button class="stage locked" data-stage="1"><span class="num">🔒</span><span><b>Улика — деталь</b><small>Исследуй художественную деталь</small></span></button>
+  <button class="stage locked" data-stage="2"><span class="num">🔒</span><span><b>Голос героя</b><small>Разбери речь персонажа</small></span></button>
+  <button class="stage locked" data-stage="3"><span class="num">🔒</span><span><b>Финальная разгадка</b><small>Раскрой смысл названия</small></span></button>
+ </div>
+</aside>
+<section class="game" id="game" aria-live="polite"></section>
+</div>
+<footer>Читай внимательно · Доказывай ответ текстом · Думай как литературовед</footer>
+</main>
+<script>
+const tasks=[
+ {tag:'ИСПЫТАНИЕ 1 · СЛЕД САТИРЫ',title:'Что высмеивает Чехов?',desc:'Первое испытание открыто! Вспомни, как меняется поведение надзирателя Очумелова в зависимости от того, кому принадлежит собака.',quote:'Очумелов несколько раз меняет своё отношение к происшествию, узнав новые сведения о возможном хозяине собаки.',q:'Какое общественное явление прежде всего высмеивает автор?',opts:['Сатирическое изображение чинопочитания и угодничества','Романтическую мечту о свободе','Стремление людей к путешествиям','Трудности деревенской жизни'],correct:0,why:'Верно! Чехов высмеивает чинопочитание, угодничество и зависимость поведения человека от положения влиятельных людей.',key:'САТИРА'},
+ {tag:'ИСПЫТАНИЕ 2 · УЛИКА — ДЕТАЛЬ',title:'Заметь важную деталь',desc:'Настоящий исследователь замечает даже небольшие детали. Они помогают понять характер героя и авторское отношение к нему.',quote:'В рассказе важную роль играют шинель Очумелова и его действия с ней: он то снимает её, то надевает.',q:'Какую роль играет шинель в рассказе?',opts:['Это только описание погоды и одежды','Она становится выразительной художественной деталью, подчёркивающей растерянность и переменчивость героя','Она символизирует богатство собаки','Она нужна только для описания места действия'],correct:1,why:'Отлично! Шинель — художественная деталь, которая помогает передать состояние Очумелова и комически подчёркивает его неуверенность.',key:'ДЕТАЛЬ'},
+ {tag:'ИСПЫТАНИЕ 3 · ГОЛОС ГЕРОЯ',title:'Расшифруй речь Очумелова',desc:'Слова персонажа раскрывают его характер. Проанализируй, как он разговаривает с окружающими и как меняет тон.',quote:'Очумелов то грозит наказать владельца собаки, то начинает оправдывать её, когда предполагает, что она принадлежит генералу.',q:'Что помогает читателю понять речевая характеристика Очумелова?',opts:['Его доброту и бескорыстие','Его образованность и любовь к искусству','Его угодливость, властность по отношению к слабым и зависимость от сильных','Его равнодушие к происходящему'],correct:2,why:'Правильно! Речевая характеристика показывает противоречивость героя: он груб с теми, кто слабее, и услужлив перед теми, кого считает влиятельными.',key:'ГОЛОС'},
+ {tag:'ИСПЫТАНИЕ 4 · ФИНАЛЬНАЯ РАЗГАДКА',title:'Почему рассказ называется «Хамелеон»?',desc:'Ты собрал почти все улики. Осталось объяснить, почему автор выбрал именно такое название.',quote:'Хамелеон — животное, известное способностью менять окраску. В переносном смысле так называют человека, который легко меняет взгляды и поведение в зависимости от обстоятельств.',q:'Как название связано с образом Очумелова?',opts:['Герой изучает необычных животных','Очумелов меняет мнение и поведение в зависимости от предполагаемого положения хозяина собаки','Герой мечтает стать ветеринаром','Название указывает на место, где происходит действие'],correct:1,why:'Именно так! Название становится метафорической характеристикой героя и подчёркивает его приспособленчество.',key:'ХАМЕЛЕОН'}
+];
+let unlocked=0,completed=new Set(),selected=null,answered=new Set();
+const game=document.getElementById('game');
+function render(){
+ if(completed.size===4){finish();return}
+ const t=tasks[unlocked];
+ document.querySelectorAll('.stage').forEach((b,i)=>{
+  b.classList.toggle('active',i===unlocked);b.classList.toggle('done',completed.has(i));b.classList.toggle('locked',i>unlocked);
+  b.querySelector('.num').textContent=completed.has(i)?'✓':i>unlocked?'🔒':String(i+1).padStart(2,'0');
+ });
+ document.getElementById('progressText').textContent=`${completed.size} из 4 испытаний`;
+ document.getElementById('progressFill').style.width=`${completed.size*25}%`;
+ document.getElementById('keyBadge').textContent=`🗝 Ключи: ${completed.size}/4`;
+ selected=null;
+ game.innerHTML=`<div class="chapter">${t.tag}</div><h2>${t.title}</h2><p class="intro">${t.desc}</p>
+ <div class="story-card">📜 <strong>Подсказка из текста:</strong> ${t.quote}</div>
+ <div class="question">${t.q}</div>
+ <div class="answers">${t.opts.map((o,i)=>`<button class="answer" data-answer="${i}"><span class="dot">${['А','Б','В','Г'][i]}</span><span>${o}</span></button>`).join('')}</div>
+ <div class="controls"><button class="btn primary" id="check" disabled>Проверить ответ</button><button class="btn soft" id="hint">Подсказка</button></div>
+ <div class="feedback" id="feedback"></div><div class="reward" id="reward"></div>`;
+ document.querySelectorAll('.answer').forEach(b=>b.addEventListener('click',()=>{
+  if(answered.has(unlocked))return;
+  document.querySelectorAll('.answer').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');selected=Number(b.dataset.answer);document.getElementById('check').disabled=false;
+ }));
+ document.getElementById('check').addEventListener('click',check);
+ document.getElementById('hint').addEventListener('click',()=>{
+  document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='💡 Подумай: какое качество Очумелова проявляется сильнее всего, когда он узнаёт о возможном влиятельном хозяине собаки?';
+ });
+}
+function check(){
+ if(selected===null)return;
+ const t=tasks[unlocked],feedback=document.getElementById('feedback');
+ const buttons=[...document.querySelectorAll('.answer')];
+ buttons[selected].classList.add(selected===t.correct?'correct':'wrong');
+ if(selected!==t.correct){
+  feedback.className='feedback bad';feedback.textContent='Пока неверно. Перечитай подсказку и попробуй ещё раз!';
+  return;
+ }
+ answered.add(unlocked);completed.add(unlocked);
+ feedback.className='feedback good';feedback.textContent='Верно! '+t.why;
+ const reward=document.getElementById('reward');reward.style.display='block';
+ reward.innerHTML=`🔑 <strong>Ты получил ключ: ${t.key}.</strong><br>Испытание пройдено! Теперь доступен следующий этап.`;
+ document.getElementById('check').disabled=true;
+ const next=document.createElement('button');next.className='btn primary';next.style.marginTop='13px';next.textContent=unlocked===3?'Завершить квест 🏆':'Перейти к следующему испытанию →';
+ reward.appendChild(next);
+ next.addEventListener('click',()=>{unlocked++;render()});
+ document.querySelectorAll('.stage')[unlocked].classList.remove('locked');
+ document.getElementById('progressText').textContent=`${completed.size} из 4 испытаний`;
+ document.getElementById('progressFill').style.width=`${completed.size*25}%`;
+ document.getElementById('keyBadge').textContent=`🗝 Ключи: ${completed.size}/4`;
+}
+function finish(){
+ document.getElementById('progressText').textContent='4 из 4 испытаний';
+ document.getElementById('progressFill').style.width='100%';
+ document.getElementById('keyBadge').textContent='🏆 Квест пройден!';
+ document.querySelectorAll('.stage').forEach(b=>{b.classList.add('done');b.classList.remove('active','locked');b.querySelector('.num').textContent='✓'});
+ game.innerHTML=`<div class="finish"><div class="trophy">🏆</div><div class="chapter">РАССЛЕДОВАНИЕ ЗАВЕРШЕНО</div><h2>Тайна раскрыта!</h2><p class="intro">Ты прошёл все испытания и собрал четыре ключа: сатира, деталь, голос и хамелеон.</p><div class="story-card"><strong>Главный вывод:</strong> через сатиру, художественную деталь и речевую характеристику Чехов показывает приспособленчество, чинопочитание и лицемерие Очумелова.</div><p><strong>Вопрос для обсуждения:</strong> встречается ли «хамелеонство» в современной жизни? Приведи пример.</p><button class="btn primary" onclick="location.reload()">Пройти квест ещё раз ↻</button></div>`;
+}
+document.querySelectorAll('.stage').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.stage);if(i<=unlocked) {unlocked=i;render()}}));
+render();
+</script>
+</body></html>
